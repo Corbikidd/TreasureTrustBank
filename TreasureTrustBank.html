@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bank Budget Manager</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    #menu {
+      background: #0044cc;
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #formsContainer {
+      margin-top: 20px;
+    }
+    .formBox {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .budgetLine {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .budgetLine input[type="text"] {
+      flex: 1;
+      margin-right: 10px;
+      padding: 5px;
+    }
+    .budgetLine input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+    .cutSuggestion {
+      color: green;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div id="menu">
+  <h2>💰 Bank Budget Manager</h2>
+  <button onclick="createNewForm()">➕ Create New Form</button>
+</div>
+
+<div id="formsContainer"></div>
+
+<script>
+  let formCount = 0;
+
+  function createNewForm() {
+    formCount++;
+    const formId = `form${formCount}`;
+    const formBox = document.createElement('div');
+    formBox.className = 'formBox';
+    formBox.innerHTML = `
+      <h3>Form ${formCount}</h3>
+      <label>Set Budget Limit: $<input type="number" id="${formId}-limit" value="1000"></label>
+      <div id="${formId}-lines"></div>
+      <button onclick="addBudgetLine('${formId}')">➕ Add Budget Line</button>
+      <button onclick="checkBudget('${formId}')">✅ Check Budget</button>
+      <div id="${formId}-message"></div>
+    `;
+    document.getElementById('formsContainer').appendChild(formBox);
+  }
+
+  function addBudgetLine(formId) {
+    const lineContainer = document.getElementById(`${formId}-lines`);
+    const line = document.createElement('div');
+    line.className = 'budgetLine';
+    line.innerHTML = `
+      <input type="text" placeholder="Item name">
+      <span>$</span><input type="number" min="0" value="0">
+    `;
+    lineContainer.appendChild(line);
+  }
+
+  function checkBudget(formId) {
+    const limit = parseFloat(document.getElementById(`${formId}-limit`).value);
+    const lines = document.querySelectorAll(`#${formId}-lines .budgetLine`);
+    let total = 0;
+    lines.forEach(line => {
+      const amount = parseFloat(line.querySelector('input[type="number"]').value);
+      total += amount;
+    });
+
+    const messageBox = document.getElementById(`${formId}-message`);
+    messageBox.innerHTML = '';
+
+    if (total > limit) {
+      const over = total - limit;
+      messageBox.innerHTML = `
+        <p class="warning">⚠️ Over budget by $${over.toFixed(2)}</p>
+        <p class="cutSuggestion">💡 Suggestion: Reduce one item by $${over.toFixed(2)} to stay within budget.</p>
+      `;
+    } else {
+      messageBox.innerHTML = `<p>✅ You're within budget! Total: $${total.toFixed(2)}</p>`;
+    }
+  }
+</script>
+
+</body>
+</html>
